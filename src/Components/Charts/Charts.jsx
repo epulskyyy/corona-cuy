@@ -8,10 +8,19 @@ const Charts = ({ data: { confirmed, recovered, deaths }, country }) => {
   useEffect(() => {
     const fetchAPI = async () => {
       setDailyData(await fetchDailyData());
+      console.log('_________');
     };
     fetchAPI();
   }, []);
 
+  const handleFilterByDate = (from, to) => {
+    console.log();
+  };
+  const da = dailyData.filter(
+    (data) => data.date >= '2020-01-24' && data.date <= '2020-01-27'
+  );
+
+  da.map((data) => console.log(data));
   const lineChart = dailyData.length ? (
     <Line
       data={{
