@@ -3,8 +3,9 @@ import { Card, CardContent, Typography, Grid } from '@material-ui/core';
 import styles from './Cards.module.css';
 import CountUp from 'react-countup';
 import cx from 'classnames';
-const Cards = ({ data: { confirmed, recovered, deaths, lastUpdate } }) => {
-  if (!confirmed || !recovered || !deaths || !lastUpdate) {
+import { connect } from 'react-redux';
+const Cards = ({ data }) => {
+  if (data == null) {
     return 'Loading...';
   }
   return (
@@ -24,13 +25,13 @@ const Cards = ({ data: { confirmed, recovered, deaths, lastUpdate } }) => {
             <Typography variant="h5">
               <CountUp
                 start={0}
-                end={confirmed.value}
+                end={data.confirmed.value}
                 duration={2.5}
                 separator=","
               />
             </Typography>
             <Typography color="textSecondary">
-              {new Date(lastUpdate).toDateString()}
+              {new Date(data.lastUpdate).toDateString()}
             </Typography>
             <Typography variant="body2">
               Number of active cases of COVID-19
@@ -51,13 +52,13 @@ const Cards = ({ data: { confirmed, recovered, deaths, lastUpdate } }) => {
             <Typography variant="h5">
               <CountUp
                 start={0}
-                end={recovered.value}
+                end={data.recovered.value}
                 duration={2.5}
                 separator=","
               />
             </Typography>
             <Typography color="textSecondary">
-              {new Date(lastUpdate).toDateString()}
+              {new Date(data.lastUpdate).toDateString()}
             </Typography>
             <Typography variant="body2">
               Number of recoveries COVID-19
@@ -78,13 +79,13 @@ const Cards = ({ data: { confirmed, recovered, deaths, lastUpdate } }) => {
             <Typography variant="h5">
               <CountUp
                 start={0}
-                end={deaths.value}
+                end={data.deaths.value}
                 duration={2.5}
                 separator=","
               />
             </Typography>
             <Typography color="textSecondary">
-              {new Date(lastUpdate).toDateString()}
+              {new Date(data.lastUpdate).toDateString()}
             </Typography>
             <Typography variant="body2">
               Number of death caused by COVID-19
@@ -95,4 +96,11 @@ const Cards = ({ data: { confirmed, recovered, deaths, lastUpdate } }) => {
     </div>
   );
 };
-export default Cards;
+
+const mapStateToProps = (state) => {
+  return {
+    data: state.dataCorona.data,
+  };
+};
+
+export default connect(mapStateToProps)(Cards);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import {
   NativeSelect,
   FormControl,
@@ -9,15 +9,27 @@ import {
   Typography,
 } from '@material-ui/core';
 import styles from './CountryPicker.module.css';
-import { fetchCountries } from '../../api';
-const CountryPicker = ({ handleCountryChange }) => {
-  const [dataCountries, setDataCountries] = useState([]);
+import {
+  fetchCountries,
+  fetchDataCorona,
+  handleChangeDate,
+} from '../../Action/DataCorona';
+import { connect } from 'react-redux';
+const CountryPicker = ({
+  fetchCountries,
+  fetchDataCorona,
+  dataCountries,
+  country,
+  toDate,
+  fromDate,
+  handleChangeDate,
+}) => {
   useEffect(() => {
-    const FetchAPI = async () => {
-      setDataCountries(await fetchCountries());
-    };
-    FetchAPI();
-  }, [setDataCountries]);
+    fetchCountries();
+  }, [fetchCountries]);
+  const handleCountryChange = (country) => {
+    fetchDataCorona(country);
+  };
   return (
     <FormControl className={styles.fromControl}>
       <NativeSelect
@@ -31,32 +43,53 @@ const CountryPicker = ({ handleCountryChange }) => {
           </option>
         ))}
       </NativeSelect>
-      <Grid component={Card}>
-        <CardContent>
-          <Typography>Filter By Date</Typography>
-          <TextField
-            id="date"
-            label="from"
-            type="date"
-            defaultValue="2017-05-24"
-            className={styles.textField}
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-          <TextField
-            id="date"
-            label="to"
-            type="date"
-            defaultValue="2017-05-24"
-            className={styles.textField}
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-        </CardContent>
-      </Grid>
+      {country ? null : (
+        <Grid component={Card}>
+          <CardContent>
+            <Typography>Filter By Date</Typography>
+            <TextField
+              id="date"
+              onChange={handleChangeDate}
+              name="dateFrom"
+              label="from"
+              type="date"
+              value={fromDate}
+              className={styles.textField}
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+            <TextField
+              id="date"
+              onChange={handleChangeDate}
+              name="dateTo"
+              label="to"
+              type="date"
+              value={toDate}
+              className={styles.textField}
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+          </CardContent>
+        </Grid>
+      )}
     </FormControl>
   );
 };
-export default CountryPicker;
+const mapStateToProps = (state) => {
+  return {
+    country: state.dataCorona.country,
+    data: state.dataCorona.data,
+    dailyData: state.dataCorona.dataDaily,
+    fromDate: state.dataCorona.dateFrom,
+    toDate: state.dataCorona.dateTo,
+    dataCountries: state.dataCorona.dataCountries,
+  };
+};
+
+export default connect(mapStateToProps, {
+  fetchDataCorona,
+  fetchCountries,
+  handleChangeDate,
+})(CountryPicker);

@@ -1,26 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { fetchDailyData } from '../../api';
+import React, { useEffect } from 'react';
 import { Line, Bar } from 'react-chartjs-2';
 import styles from './Charts.module.css';
-const Charts = ({ data: { confirmed, recovered, deaths }, country }) => {
-  const [dailyData, setDailyData] = useState([]);
-
+import { fetchDailyData } from '../../Action/DataCorona';
+import { connect } from 'react-redux';
+const Charts = ({ data, country, fetchDailyData, dailyData }) => {
   useEffect(() => {
-    const fetchAPI = async () => {
-      setDailyData(await fetchDailyData());
-      console.log('_________');
-    };
-    fetchAPI();
-  }, []);
+    fetchDailyData();
+  }, [fetchDailyData]);
 
-  const handleFilterByDate = (from, to) => {
-    console.log();
-  };
-  const da = dailyData.filter(
-    (data) => data.date >= '2020-01-24' && data.date <= '2020-01-27'
-  );
-
-  da.map((data) => console.log(data));
   const lineChart = dailyData.length ? (
     <Line
       data={{
@@ -43,30 +30,50 @@ const Charts = ({ data: { confirmed, recovered, deaths }, country }) => {
       }}
     />
   ) : null;
-  const barChart = confirmed ? (
-    <Bar
-      data={{
-        labels: ['Infected', 'Recovered', 'Deaths'],
-        datasets: [
-          {
-            label: 'People',
-            backgroundColor: [
-              'rgba(0,0,255,0.5)',
-              'rgba(0,255,0,0.5)',
-              'rgba(255,0,0,0.5)',
-            ],
-            data: [confirmed.value, recovered.value, deaths.value],
-          },
-        ],
-      }}
-      options={{
-        legend: { display: false },
-        title: { display: true, text: `Current state in ${country}` },
-      }}
-    />
-  ) : null;
+  const barChart =
+    data !== null ? (
+      <Bar
+        data={{
+          labels: ['Infected', 'Recovered', 'Deaths'],
+          datasets: [
+            {
+              label: 'People',
+              backgroundColor: [
+                'rgba(0,0,255,0.5)',
+                'rgba(0,255,0,0.5)',
+                'rgba(255,0,0,0.5)',
+              ],
+              data: [
+                data.confirmed.value,
+                data.recovered.value,
+                data.deaths.value,
+              ],
+            },
+          ],
+        }}
+        options={{
+          legend: { display: false },
+          title: { display: true, text: `Current state in ${country}` },
+        }}
+      />
+    ) : null;
+  if (data === null) {
+    return 'LOARDING';
+  }
+  if (dailyData.length === 0) {
+    return <h1>Data Not Found!</h1>;
+  }
   return (
     <div className={styles.container}>{country ? barChart : lineChart}</div>
   );
 };
-export default Charts;
+
+const mapStateToProps = (state) => {
+  return {
+    data: state.dataCorona.data,
+    country: state.dataCorona.country,
+    dailyData: state.dataCorona.dataDaily,
+  };
+};
+
+export default connect(mapStateToProps, { fetchDailyData })(Charts);

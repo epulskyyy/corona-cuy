@@ -1,34 +1,29 @@
 import React from 'react';
 import { Cards, Charts, CountryPicker } from './Components';
 import styles from './App.module.css';
-import { FetchData } from './api';
 import coronaImage from './images/logo.gif';
+import { fetchDataCorona } from './Action/DataCorona';
+import { connect } from 'react-redux';
 class App extends React.Component {
-  state = {
-    data: [],
-    country: '',
-  };
-
-  async componentDidMount() {
-    const fetchedData = await FetchData();
-    this.setState({ data: fetchedData });
-    console.log(fetchedData);
+  componentDidMount() {
+    this.props.fetchDataCorona();
   }
 
-  handleCountryChange = async (country) => {
-    const fetchedData = await FetchData(country);
-    this.setState({ data: fetchedData, country: country });
-  };
   render() {
-    const { data, country } = this.state;
     return (
       <div className={styles.container}>
         <img className={styles.image} src={coronaImage} alt="COVID-19" />
-        <Cards data={data} />
-        <CountryPicker handleCountryChange={this.handleCountryChange} />
-        <Charts data={data} country={country} />
+        <Cards />
+        <CountryPicker />
+        <Charts />
       </div>
     );
   }
 }
-export default App;
+const mapStateToProps = (state) => {
+  return {
+    dataCorona: state.dataCorona,
+  };
+};
+
+export default connect(mapStateToProps, { fetchDataCorona })(App);
